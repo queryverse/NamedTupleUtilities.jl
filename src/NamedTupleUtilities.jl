@@ -1,0 +1,3 @@
+module NamedTupleUtilities
+
+end # module
