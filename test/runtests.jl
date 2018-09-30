@@ -12,4 +12,8 @@ using Test
 @test range((a = 1, b = 2, c = 3),Val(:d),Val(:c)) == NamedTuple()
 @inferred range((a = 1, b = 2, c = 3),Val(:a),Val(:b))
 
+@test rename((a = 1, b = 2, c = 3),Val(:a),Val(:d)) == (d = 1, b = 2, c = 3)
+@test rename((a = 1, b = 2, c = 3),Val(:m),Val(:d)) == (a = 1, b = 2, c = 3)
+@test_throws ErrorException rename((a = 1, b = 2, c = 3),Val(:a),Val(:c))
+@inferred rename((a = 1, b = 2, c = 3),Val(:a),Val(:d))
 end
