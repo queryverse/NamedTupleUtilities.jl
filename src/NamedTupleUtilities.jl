@@ -1,5 +1,5 @@
 module NamedTupleUtilities
-export remove
+export remove, rename
 """
     remove(a::NamedTuple, v::Val{n})
 
@@ -44,7 +44,43 @@ julia>range((a=1,b=2,c=3),Val(:a),Val(:b))
         end
     end
     types = Tuple{Any[ fieldtype(a, n) for n in names ]...}
+    println(names,types)
     vals = Any[ :(getfield(a, $(QuoteNode(n)))) for n in names ]
+    :( NamedTuple{$names,$types}(($(vals...),)) )
+end
+
+"""
+    rename(a::NamedTuple, b::Val{n}, c::Val{n})
+
+Return a NamedTuple derived from `a` in which the the field from `b` is renamed to `c`. 
+If `b` is not in `a`, then it will return the original NamedTuple. 
+If `c` is in `a`, then `ERROR: duplicate field name in NamedTuple: "c" is not unique` will occur.
+
+```jldoctest
+julia> rename((a = 1, b = 2, c = 3),Val(:a),Val(:d))
+(d = 1, b = 2, c = 3)
+
+julia> rename((a = 1, b = 2, c = 3),Val(:m),Val(:d))
+(a = 1, b = 2, c = 3)
+
+julia> rename((a = 1, b = 2, c = 3),Val(:a),Val(:c))
+ERROR: duplicate field name in NamedTuple: "c" is not unique
+```
+"""
+@generated function rename(a::NamedTuple{an}, ::Val{bn}, ::Val{cn}) where {an, bn, cn}
+    names = ()
+    typesArray = Any[]
+    vals = Any[]
+    for n in an
+        if n == bn
+            names = (names..., cn)
+        else
+            names = (names..., n)
+        end
+        typesArray = Any[typesArray..., fieldtype(a, n)]
+        vals = Any[vals..., :(getfield(a, $(QuoteNode(n))))]
+    end
+    types = Tuple{typesArray...}
     :( NamedTuple{$names,$types}(($(vals...),)) )
 end
 
