@@ -84,10 +84,9 @@ ERROR: duplicate field name in NamedTuple: "c" is not unique
     return :(NamedTuple{$(names...,),$types}(($(vals...),)))
 end
 
-end # module
 
 """
-    startswith(a::NamedTuple, b::Val{n}, c::Val{n})
+    startswith(a::NamedTuple, b::Val{n})
 
 Return a NamedTuple which retains the fields with names started with `b` in `a`. 
 
@@ -96,7 +95,7 @@ julia> startswith((abc=1,bcd=2,cde=3),Val(:a))
 (abc = 1,)
 ```
 """
-@generated function Base.startswith(a::NamedTuple{an}, ::Val{bn}) where {an, bn, cn}
+@generated function Base.startswith(a::NamedTuple{an}, ::Val{bn}) where {an, bn}
     names = ((i for i in an if startswith(String(i), String(bn)))...,)
     types = Tuple{(fieldtype(a ,n) for n in names)...}
     vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
@@ -104,7 +103,7 @@ julia> startswith((abc=1,bcd=2,cde=3),Val(:a))
 end
 
 """
-    endswith(a::NamedTuple, b::Val{n}, c::Val{n})
+    endswith(a::NamedTuple, b::Val{n})
 
 Return a NamedTuple which retains the fields with names ended with `b` in `a`. 
 
@@ -113,7 +112,7 @@ julia> endswith((abc=1,bcd=2,cde=3),Val(:d))
 (bcd = 2,)
 ```
 """
-@generated function Base.endswith(a::NamedTuple{an}, ::Val{bn}) where {an, bn, cn}
+@generated function Base.endswith(a::NamedTuple{an}, ::Val{bn}) where {an, bn}
     names = ((i for i in an if endswith(String(i), String(bn)))...,)
     types = Tuple{(fieldtype(a ,n) for n in names)...}
     vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
@@ -121,7 +120,7 @@ julia> endswith((abc=1,bcd=2,cde=3),Val(:d))
 end
 
 """
-    occursin(a::NamedTuple, b::Val{n}, c::Val{n})
+    occursin(a::NamedTuple, b::Val{n})
 
 Return a NamedTuple which retains the fields with names contains `b` as a substring. 
 
@@ -130,9 +129,11 @@ julia> occursin((abc=1,bcd=2,cde=3),Val(:d))
 (bcd = 2, cde = 3)
 ```
 """
-@generated function Base.occursin(a::NamedTuple{an}, ::Val{bn}) where {an, bn, cn}
+@generated function Base.occursin(a::NamedTuple{an}, ::Val{bn}) where {an, bn}
     names = ((i for i in an if occursin(String(bn), String(i)))...,)
     types = Tuple{(fieldtype(a ,n) for n in names)...}
     vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
     return :(NamedTuple{$names,$types}(($(vals...),)))
 end
+
+end # module
