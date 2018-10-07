@@ -6,7 +6,7 @@ export remove, rename
 Remove a field `n` from the `a` if it is in `a`.
 
 ```jldoctest
-julia>remove((a=1,b=2,c=3),Val(:c))
+julia> remove((a=1,b=2,c=3),Val(:c))
 (a = 1, b = 2)
 ```
 """
@@ -25,7 +25,7 @@ If `b` is not in `a`, then it will return empty NamedTuple.
 If `c` is not in `a`, then it will return everything started with `b`.
 
 ```jldoctest
-julia>range((a=1,b=2,c=3),Val(:a),Val(:b))
+julia> range((a=1,b=2,c=3),Val(:a),Val(:b))
 (a = 1, b = 2)
 ```
 """
@@ -44,7 +44,7 @@ julia>range((a=1,b=2,c=3),Val(:a),Val(:b))
             break
         end
     end
-    types = Tuple{DataType[ fieldtype(a, n) for n in names ]...}
+    types = Tuple{(fieldtype(a, n) for n in names)...}
     vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
     return :(NamedTuple{$(names...,),$types}(($(vals...),)))
 end
