@@ -85,3 +85,54 @@ ERROR: duplicate field name in NamedTuple: "c" is not unique
 end
 
 end # module
+
+"""
+    startswith(a::NamedTuple, b::Val{n}, c::Val{n})
+
+Return a NamedTuple which retains the fields with names started with `b` in `a`. 
+
+```jldoctest
+julia> startswith((abc=1,bcd=2,cde=3),Val(:a))
+(abc = 1,)
+```
+"""
+@generated function Base.startswith(a::NamedTuple{an}, ::Val{bn}) where {an, bn, cn}
+    names = ((i for i in an if startswith(String(i), String(bn)))...,)
+    types = Tuple{(fieldtype(a ,n) for n in names)...}
+    vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
+    return :(NamedTuple{$names,$types}(($(vals...),)))
+end
+
+"""
+    endswith(a::NamedTuple, b::Val{n}, c::Val{n})
+
+Return a NamedTuple which retains the fields with names ended with `b` in `a`. 
+
+```jldoctest
+julia> endswith((abc=1,bcd=2,cde=3),Val(:d))
+(bcd = 2,)
+```
+"""
+@generated function Base.endswith(a::NamedTuple{an}, ::Val{bn}) where {an, bn, cn}
+    names = ((i for i in an if endswith(String(i), String(bn)))...,)
+    types = Tuple{(fieldtype(a ,n) for n in names)...}
+    vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
+    return :(NamedTuple{$names,$types}(($(vals...),)))
+end
+
+"""
+    occursin(a::NamedTuple, b::Val{n}, c::Val{n})
+
+Return a NamedTuple which retains the fields with names contains `b` as a substring. 
+
+```jldoctest
+julia> occursin((abc=1,bcd=2,cde=3),Val(:d))
+(bcd = 2, cde = 3)
+```
+"""
+@generated function Base.occursin(a::NamedTuple{an}, ::Val{bn}) where {an, bn, cn}
+    names = ((i for i in an if occursin(String(bn), String(i)))...,)
+    types = Tuple{(fieldtype(a ,n) for n in names)...}
+    vals = Expr[:(getfield(a, $(QuoteNode(n)))) for n in names]
+    return :(NamedTuple{$names,$types}(($(vals...),)))
+end

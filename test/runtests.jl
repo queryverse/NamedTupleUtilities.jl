@@ -16,4 +16,12 @@ using Test
 @test rename((a = 1, b = 2, c = 3),Val(:m),Val(:d)) == (a = 1, b = 2, c = 3)
 @test_throws ErrorException rename((a = 1, b = 2, c = 3),Val(:a),Val(:c))
 @inferred rename((a = 1, b = 2, c = 3),Val(:a),Val(:d))
+
+@test startswith((abc=1,bcd=2,cde=3),Val(:a)) == (abc = 1,)
+@test endswith((abc=1,bcd=2,cde=3),Val(:d)) == (bcd = 2,)
+@test occursin((abc=1,bcd=2,cde=3),Val(:d)) == (bcd = 2, cde = 3)
+@inferred startswith((abc=1,bcd=2,cde=3),Val(:a)) == (abc = 1,)
+@inferred endswith((abc=1,bcd=2,cde=3),Val(:d)) == (bcd = 2,)
+@inferred occursin((abc=1,bcd=2,cde=3),Val(:d)) == (bcd = 2, cde = 3)
+
 end
